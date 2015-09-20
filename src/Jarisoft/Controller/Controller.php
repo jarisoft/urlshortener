@@ -1,15 +1,17 @@
 <?php
 namespace Jarisoft\Controller;
 
+require_once 'src/Jarisoft/Resources/Validator.php';
+
 /**
  * This controller handles URL and basic server focused functions.
  *
  * The main functionality of this controller is to serve other controllers with basic
  * functionality like URL validation and redirects.
- * 
+ *
  * @author jakob
  * @since 0.0.1
- *         
+ *       
  */
 class Controller
 {
@@ -50,7 +52,7 @@ class Controller
         }
         $headers = explode("\n", $out);
         foreach ($headers as $header) {
-            // Check if key 'Location' exist in array
+            // Checks if 'Location' is one of the substring of each header
             if (substr($header, 0, 10) == "Location: ") {
                 $redirectURL = substr($header, 10);
                 return $redirectURL;
@@ -76,11 +78,29 @@ class Controller
         curl_exec($ch);
         $returnCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        if ($returnCode === 200) {
+        var_dump($returnCode);
+        if ($returnCode < 400) {
             return true;
         } else {
             return false;
         }
+    }
+
+    public function getParameter()
+    {
+        if ($this->isGetRequest()) {
+            $parameter = "";
+            /*
+             * Remove trailing slashes from parameter.
+             */
+            if (array_key_exists('route', $_GET)) {
+                $parameter = preg_replace('/[\/]+/i', '', $_GET['route']);
+            }
+            return $parameter;
+        } else 
+            if ($this->isPostRequest()) {
+                return $_POST;
+            }
     }
 
     /**
@@ -90,7 +110,42 @@ class Controller
      */
     public function redirectTo($url)
     {
+        echo "Should redirect to " . $url;
         header("Location: " . $url);
         exit();
+    }
+
+    public function isGetRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function isPostRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "POST") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function hasValidParameter()
+    {
+        return \Validator::isValidParameter($_GET);
+    }
+
+    public function getSession($newSessionID)
+    {
+        session_start();
+        if ($newSessionID) {
+        if (!isset($_SESSION['random_key'])) {
+                $_SESSION["random_key"] = substr(md5(rand()), 0, 20);
+            }
+        }
+        return $_SESSION;
     }
 }

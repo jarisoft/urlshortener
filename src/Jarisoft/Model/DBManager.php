@@ -27,19 +27,17 @@ class DBManager
     public function __construct(\EventManagerInterface $eventManagerInterface)
     {
         $this->eventManager = $eventManagerInterface;
-        echo "<strong>" . realpath(".") ."</strong>";
         $this->config_file = realpath(".") . $this->config_file;
-        echo $this->config_file;
         try {
             $this->config = parse_ini_file($this->config_file, TRUE);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
         
-        var_dump($this->config['db']);
     }
-    
-    public function isConnected() {
+
+    public function isConnected()
+    {
         $con = $this->getConnection();
         if (isset($con)) {
             return true;
@@ -47,12 +45,12 @@ class DBManager
             return false;
         }
     }
-    
+
     private function getConnection()
     {
         if (! isset($this->connection)) {
             try {
-                $server = "mysql:dbname=" . $this->config['db']['dbname'] . ";host=" . $this->config['db']['host'];
+                $server = "mysql:dbname=" . $this->config['db']['database'] . ";host=" . $this->config['db']['host'];
                 $this->connection = new \PDO($server, $this->config['db']['username'], $this->config['db']['password']);
                 return $this->connection;
             } catch (\PDOException $e) {
@@ -62,18 +60,42 @@ class DBManager
             }
             
             return $this->connection;
-        }
+        } 
+        return $this->connection;
     }
 
-    public function getId($query, $rowName)
+    public function insertShortURL(\ShortURL $url)
     {
         $con = $this->getConnection();
         if (isset($con)) {
-            $stmt = $con->query($query);
-            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $id = $row[$rowName];
-            return $id;
+            $query = "INSERT INTO shortener (id, shortName, target, dateCreated, dateExpired) 
+                VALUES (null, :shortName, :target, :dateCreated, :dateExpired)";
+            $stmt = $con->prepare($query);
+            $stmt->bindParam(':shortName', $url->getShortName());
+            $stmt->bindParam(':target', $url->getTarget());
+            $stmt->bindParam(':dateCreated', $url->getDateCreated());
+            $stmt->bindParam(':dateExpired', $url->getDateExpire());
+            $stmt->execute();
+            $id = $con->lastInsertId();
+            $url->setId($id);
+            return $url;
+        }
+    }
+
+    public function getSingleValue($query)
+    {
+        $con = $this->getConnection();
+        if (isset($con)) {
+            try {
+            $stmt = $con->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+                var_dump($e);
+            }
+            return $result;
         } else {
+            
             $event = new Event(Event::ERROR);
             $event->setEventMessage("Cannot execute SELECTION statement since there is no valid or open database connection");
             $this->eventManager->notifyListener($event);
@@ -114,6 +136,28 @@ class DBManager
                 return false;
             }
         } else {
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param unknown $query            
+     * @param unknown $className            
+     * @return multitype:|boolean
+     */
+    public function fetchAllShortURLs($query, $className)
+    {
+        $con = $this->getConnection();
+        if (isset($con)) {
+            $stmt = $con->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetchObject($className);
+            return $result;
+        } else {
+            $event = new Event(Event::ERROR);
+            $event->setEventMessage("Error Code: " . $stmt->errorCode() . " | " . $stmt->errorInfo());
+            $this->eventManager->notifyListener($event);
             return false;
         }
     }

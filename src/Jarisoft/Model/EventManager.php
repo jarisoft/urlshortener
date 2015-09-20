@@ -60,7 +60,9 @@ class EventManager implements \EventManagerInterface
     public function notifyListener(Event $event)
     {
         foreach ($this->eventListener as $listener) {
+            
             $event->setEventMessage($event->getEventMessage() . "<br>");
+            echo $event->getEventMessage();
             $listener->processEvent($event);
         }
     }
