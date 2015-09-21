@@ -1,10 +1,14 @@
 <div class="container-fluid">
 	<div class="row">
 		<a id="notes"></a>
-		<div class="col-md-10 col-md-offset-1 col-xs-12"">
-
+		<div class="col-md-10 col-md-offset-1 col-xs-12">
+			
 			<h2>Notes</h2>
-			This page provides you with a URL shortening service. This service
+			<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <strong>Please notice! </strong> This page is using cookies.
+</div>
+			This page provides users with a URL shortening service. This service
 			can be used freely but under certain rules:
 
 			<ul>

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This class is a helper class and has only static methods. 
+ * 
+ * This class validates URLs from the point of format.
+ * @author jakob
+ * @since 0.0.1
+ * 
+ *
+ */
 class Validator
 {
 
@@ -37,6 +46,12 @@ class Validator
         return $bool;
     }
 
+    /**
+     * Checks if given url has format of a url.
+     *
+     * @param string $urlToTest            
+     * @return boolean true if given url is a valid url string otherwise false.
+     */
     public static function isValidURL($urlToTest)
     {
         if (! filter_var($urlToTest, FILTER_VALIDATE_URL) === false) {
@@ -50,9 +65,19 @@ class Validator
             }
         }
     }
-    
-    public static function getValidatedURL($url) {
-        if (strpos($url, "http://") === 0 || strpos($url, "https://") === 0 ) {
+
+    /**
+     * Returns an URL string.
+     *
+     * If www.example.com is given a 'http://' will be put at the beginning and will be returned.
+     *
+     * @param string $url
+     *            The url that needs to be validated.
+     * @return string the validated url
+     */
+    public static function getValidatedURL($url)
+    {
+        if (strpos($url, "http://") === 0 || strpos($url, "https://") === 0) {
             return $url;
         } else {
             return "http://" . $url;

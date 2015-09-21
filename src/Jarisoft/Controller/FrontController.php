@@ -10,18 +10,21 @@ use Jarisoft\Controller\ViewController;
 use URLShortener;
 
 /**
- * File Name: FrontController.php
- * Author: Jakob Richter
- * Date: 18.09.2015
- * Version @version
- * =================================================================
+ * This class is the controller of this application.
  *
- * This script is used to
- * =================================================================
+ * It handles the GET and POST requests, it initialised the applications components
+ * and handles the responses.
+ *
+ * @author jakob
+ *        
  */
 class FrontController extends Controller implements EventListener
 {
 
+    /**
+     * This array stores all incoming events 
+     * @var array
+     */
     private $eventList = array();
 
     private $eventManager;
@@ -34,6 +37,10 @@ class FrontController extends Controller implements EventListener
 
     private $config;
 
+    /**
+     * Constructor of this class initialised several components of this appliaction 
+     * and set them up to control them.  
+     */
     public function __construct()
     {
         $this->configFile = realpath(".") . $this->configFile;
@@ -46,7 +53,10 @@ class FrontController extends Controller implements EventListener
         $this->initApplication();
     }
 
-    public function initApplication()
+    /**
+     * This method checks for the method that was called and handles them accordingly 
+     */
+    private function initApplication()
     {
         
         /*
@@ -83,111 +93,119 @@ class FrontController extends Controller implements EventListener
                         $event->setEventMessage("No matching URL could be found with this parameter. Please try again.");
                         $this->eventManager->notifyListener($event);
                         $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
-                        // TODO error page
                     } else {
                         $this->redirectTo($targetURL);
                     }
                 }
             } else {
-                /*
-                 * redirect to error page
-                 */
+                 $event = new Event(Event::WARNING);
+                        $event->setEventMessage("This URL couldn't be found please make sure you have not misspelled the address. Please try again.");
+                        $this->eventManager->notifyListener($event);
+                        $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
             }
         } else {
-            $session = $this->getSession(false);
-            $parameter = $this->getParameter();
-            $event = null;
-            // Check if we have submitted the right form.
-            if ($parameter['random_key'] === $session['random_key']) {
-                
-                if (isset($_POST['submit_create'])) {
-                    $url = $_POST['input_field'];
-                    if (\Validator::isValidURL($url)) {
-                        // Check now if url exists and if it redirects
-                        $url = \Validator::getValidatedURL($url);
-                        // check if url even exists before we move on
-                        if ($this->isUrlExist($url)) {
-                            // check if target url redirects
-                            $allowRedirect = ($this->config['shortener']['redirect'] === 'on');
-                            if ($allowRedirect || !$this->isUrlRedirect($url)) {
-                                /*
-                                 * Check if we have already a record for this target url
-                                 */
-                                if ($this->urlShortenator->targetURLExists(\Validator::getValidatedURL($url))) {
-                                    $event = new Event(Event::WARNING);
-                                    $event->setEventMessage("A shortened URL with of this target already exists. You can redirect a URL only once.");
-                                    $this->eventManager->notifyListener($event);
-                                    $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
-                                } else {
-                                    $shortURL = $this->urlShortenator->generateShortURL($url);
-                                    var_dump($shortURL);
-                                    $data = $this->getPageInformation();
-                                    $data["shortURL"] = $shortURL;
-                                    $this->viewController->shortGeneratedAction($data, $this->eventList);
-                                }
-                            } else {
+            $this->handlePost();
+        }
+    }
+
+    /**
+     * This method handles all form submissions. 
+     */
+    private function handlePost()
+    {
+        $session = $this->getSession(false);
+        $parameter = $this->getParameter();
+        $event = null;
+        // Check if we have submitted the right form.
+        if ($parameter['random_key'] === $session['random_key']) {
+            
+            if (isset($_POST['submit_create'])) {
+                $url = $_POST['input_field'];
+                if (\Validator::isValidURL($url)) {
+                    // Check now if url exists and if it redirects
+                    $url = \Validator::getValidatedURL($url);
+                    // check if url even exists before we move on
+                    if ($this->isUrlExist($url)) {
+                        // check if target url redirects
+                        $allowRedirect = ($this->config['shortener']['redirect'] === 'on');
+                        if ($allowRedirect || ! $this->isUrlRedirect($url)) {
+                            /*
+                             * Check if we have already a record for this target url
+                             */
+                            if ($this->urlShortenator->targetURLExists(\Validator::getValidatedURL($url))) {
                                 $event = new Event(Event::WARNING);
-                                $event->setEventMessage("Given URL points to a redirecting node which is permitted.");
+                                $event->setEventMessage("A shortened URL with of this target already exists. You can redirect a URL only once.");
                                 $this->eventManager->notifyListener($event);
                                 $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
+                            } else {
+                                $shortURL = $this->urlShortenator->generateShortURL($url);
+                                var_dump($shortURL);
+                                $data = $this->getPageInformation();
+                                $data["shortURL"] = $shortURL;
+                                $this->viewController->shortGeneratedAction($data, $this->eventList);
                             }
                         } else {
-                            $event = new Event(Event::ERROR);
-                            $event->setEventMessage("The URL '$url doesn't exist or produces an error.");
+                            $event = new Event(Event::WARNING);
+                            $event->setEventMessage("Given URL points to a redirecting node which is permitted.");
                             $this->eventManager->notifyListener($event);
                             $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
                         }
                     } else {
                         $event = new Event(Event::ERROR);
-                        $event->setEventMessage("Given URL has not the right format and doesn't validate to a URL.");
+                        $event->setEventMessage("The URL '$url doesn't exist or produces an error.");
                         $this->eventManager->notifyListener($event);
                         $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
                     }
-                } else 
-                    
-                    // This is the case where we want to look up a shortURL or a targetURL
-                    
-                    if (isset($_POST['submit_lookup'])) {
-                        $url = \Validator::getValidatedURL($_POST['input_field']);
-                        // var_dump($this->config);
-                        $pos = strpos($url, $this->config['shortener']['targetURL']);
-                        var_dump($pos);
-                        // we probably have a targetURL as input and are looking for the shortURL
-                        $data = $this->getPageInformation();
-                        $data['lookup'] = $url;
-                        if ($pos === false) {
-                            $shortURLs = $this->urlShortenator->getShortenURL($url);
-                            if ($shortURLs !== false) {
-                                $shortURL = $shortURLs;
-                                $data['match_found'] = true;
-                                $data['match'] = $shortURL;
-                            } else {
-                                $data['match_found'] = false;
-                            }
+                } else {
+                    $event = new Event(Event::ERROR);
+                    $event->setEventMessage("Given URL has not the right format and doesn't validate to a URL.");
+                    $this->eventManager->notifyListener($event);
+                    $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
+                }
+            } else 
+                
+                // This is the case where we want to look up a shortURL or a targetURL
+                
+                if (isset($_POST['submit_lookup'])) {
+                    $url = \Validator::getValidatedURL($_POST['input_field']);
+                    // var_dump($this->config);
+                    $pos = strpos($url, $this->config['shortener']['targetURL']);
+                    var_dump($pos);
+                    // we probably have a targetURL as input and are looking for the shortURL
+                    $data = $this->getPageInformation();
+                    $data['lookup'] = $url;
+                    if ($pos === false) {
+                        $shortURLs = $this->urlShortenator->getShortenURL($url);
+                        if ($shortURLs !== false) {
+                            $shortURL = $shortURLs;
+                            $data['match_found'] = true;
+                            $data['match'] = $shortURL;
                         } else {
-                            // get Parameter from given shortURL
-                            $param = substr($url, strlen($this->config['shortener']['targetURL']) + 1);
-                            if (strlen($param) === 0) {
-                                $data['match_found'] = false;
+                            $data['match_found'] = false;
+                        }
+                    } else {
+                        // get Parameter from given shortURL
+                        $param = substr($url, strlen($this->config['shortener']['targetURL']) + 1);
+                        if (strlen($param) === 0) {
+                            $data['match_found'] = false;
+                        } else {
+                            $targetURLs = $this->urlShortenator->getTargetURLObject($param);
+                            if ($targetURLs !== false) {
+                                $data['match_found'] = true;
+                                $data['match'] = $targetURLs;
                             } else {
-                                $targetURLs = $this->urlShortenator->getTargetURLObject($param);
-                                if ($targetURLs !== false) {
-                                    $data['match_found'] = true;
-                                    $data['match'] = $targetURLs;
-                                } else {
-                                    $data['match_found'] = false;
-                                }
+                                $data['match_found'] = false;
                             }
                         }
-                        
-                        $this->viewController->matchResultAction($data, $this->eventList);
                     }
-            } else {
-                $event = new Event(Event::WARNING);
-                $event->setEventMessage("An older form was submitted. Try again");
-                $this->eventManager->notifyListener($event);
-                $this->viewController->welcomeAction($this->getPageInformation(), $this->eventList);
-            }
+                    
+                    $this->viewController->matchResultAction($data, $this->eventList);
+                }
+        } else {
+            $event = new Event(Event::WARNING);
+            $event->setEventMessage("An older form was submitted. Try again");
+            $this->eventManager->notifyListener($event);
+            $this->viewController->welcomeAction($this->getPageInformation(), $this->eventList);
         }
     }
 
@@ -196,6 +214,11 @@ class FrontController extends Controller implements EventListener
         return "FrontController";
     }
 
+    /**
+     * This method is called every time we want to issue the ViewController.
+     * 
+     * @return array holds information for ViewController
+     */
     private function getPageInformation()
     {
         $data = array(

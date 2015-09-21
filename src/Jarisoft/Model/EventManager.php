@@ -25,7 +25,7 @@ class EventManager implements \EventManagerInterface
     private $eventListener;
 
     /**
-     * Constructor 
+     * Constructor
      */
     public function __construct()
     {

@@ -4,7 +4,7 @@ namespace Jarisoft\Controller;
 require_once 'src/Jarisoft/Resources/Validator.php';
 
 /**
- * This controller handles URL and basic server focused functions.
+ * This controller handles URL and basic server focused issues.
  *
  * The main functionality of this controller is to serve other controllers with basic
  * functionality like URL validation and redirects.
@@ -16,16 +16,14 @@ require_once 'src/Jarisoft/Resources/Validator.php';
 class Controller
 {
 
+    /**
+     * Returns the requested method.
+     *
+     * @return string
+     */
     public function getRequestMethod()
     {
         return $_SERVER['REQUEST_METHOD'];
-    }
-
-    public function getURL()
-    {
-        $url = $_SERVER['REQUEST_URI'];
-        echo "<br>" . $_SERVER['HTTP_HOST'] . "<br>";
-        return $url;
     }
 
     /**
@@ -86,6 +84,13 @@ class Controller
         }
     }
 
+    /**
+     * Returns the single parameter if REQUEST_METHOD is GET because we only accept only one
+     * paramter.
+     * Otherwise it will return the $_POST array.
+     *
+     * @return mixed|unknown
+     */
     public function getParameter()
     {
         if ($this->isGetRequest()) {
@@ -110,11 +115,15 @@ class Controller
      */
     public function redirectTo($url)
     {
-        echo "Should redirect to " . $url;
         header("Location: " . $url);
         exit();
     }
 
+    /**
+     * Checks if REQUEST_METHOD is GET
+     *
+     * @return boolean
+     */
     public function isGetRequest()
     {
         if ($_SERVER['REQUEST_METHOD'] === "GET") {
@@ -124,6 +133,11 @@ class Controller
         }
     }
 
+    /**
+     * Checks if REQUEST_METHOD is POST
+     *
+     * @return boolean
+     */
     public function isPostRequest()
     {
         if ($_SERVER['REQUEST_METHOD'] === "POST") {
@@ -133,16 +147,32 @@ class Controller
         }
     }
 
+    /**
+     * Uses Validator to check if $_GET array is valid according to
+     * the needs of this application
+     *
+     * @return boolean true if parameter of $_GET are valid.
+     */
     public function hasValidParameter()
     {
         return \Validator::isValidParameter($_GET);
     }
 
+    /**
+     * Creates or keeps a running session alive.
+     * If $newSessionID === true the parameter
+     * $_SESSION['random_key'] is set to a random string if this value has not been set
+     * before.
+     * 
+     * @param bool $newSessionID            
+     * 
+     * @return the $_SESSION variale.
+     */
     public function getSession($newSessionID)
     {
         session_start();
         if ($newSessionID) {
-        if (!isset($_SESSION['random_key'])) {
+            if (! isset($_SESSION['random_key'])) {
                 $_SESSION["random_key"] = substr(md5(rand()), 0, 20);
             }
         }

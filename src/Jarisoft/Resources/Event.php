@@ -2,17 +2,15 @@
 namespace Jarisoft\Resources;
 
 /**
- * File Name: Event.php
- * Author: Jakob Richter
- * Date: 17.09.2015
- * Version @version
- * =================================================================
+ * This class is used for all error, information and warning procession.
  *
- * This script is used to
- * =================================================================
+ *
+ * Events can occour at several points of this application for instance 
+ * when accessing the database, wrong inputs, ...
+ * 
+ * @author jakob
+ *        
  */
- 
-
 class Event
 {
 
@@ -27,13 +25,26 @@ class Event
      * @var Indicates a normal event
      */
     const MESSAGE = 1;
-    
+
+    /**
+     * Indicates something not critical happened.
+     * 
+     * @var unknown
+     */
     const WARNING = 2;
 
     private $eventType;
 
     private $eventMessage;
 
+    /**
+     * Each event is constructed with a event type.
+     * Events can be instantiated by: 
+     * 
+     *  $event = new Event(Event::ERROR);
+     *  which indicates that instantiated event has error type. 
+     * @param int event type.
+     */
     public function __construct($type)
     {
         $this->eventType = $type;
@@ -49,8 +60,6 @@ class Event
         return $this->eventMessage;
     }
 
-    /**
-     */
     public function getEventType()
     {
         return $this->eventType;

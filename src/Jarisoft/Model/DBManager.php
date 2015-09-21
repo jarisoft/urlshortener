@@ -1,22 +1,16 @@
 <?php
-/**
- * File Name: DBInterface.php
- * Author: Jakob Richter
- * Date: 18.09.2015
- * Version @version
- * =================================================================
- *
- * This script is used to
- * =================================================================
- */
 namespace Jarisoft\Model;
 
 use Jarisoft\Resources\Event;
 
+/**
+ * This class handles all database issues.
+ *
+ * @author jakob
+ *        
+ */
 class DBManager
 {
-
-    private $config_file = "/src/config/config.php";
 
     private $config;
 
@@ -24,18 +18,26 @@ class DBManager
 
     private $eventManager;
 
-    public function __construct(\EventManagerInterface $eventManagerInterface)
+    /**
+     * Constructor gets the eventManager for firing events and the configuration array
+     * that holds all database parameter.
+     *
+     * @param \EventManagerInterface $eventManagerInterface
+     *            for event handling
+     * @param array $confiuration
+     *            holds parameter to establish a connection to database
+     */
+    public function __construct(\EventManagerInterface $eventManagerInterface, $confiuration)
     {
         $this->eventManager = $eventManagerInterface;
-        $this->config_file = realpath(".") . $this->config_file;
-        try {
-            $this->config = parse_ini_file($this->config_file, TRUE);
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-        }
-        
+        $this->config = $confiuration;
     }
 
+    /**
+     * Checks if we have a valid connection to database
+     *
+     * @return boolean
+     */
     public function isConnected()
     {
         $con = $this->getConnection();
@@ -46,6 +48,11 @@ class DBManager
         }
     }
 
+    /**
+     * Returns an object of \PDO which handles the database access.
+     *
+     * @return \PDO
+     */
     private function getConnection()
     {
         if (! isset($this->connection)) {
@@ -60,10 +67,17 @@ class DBManager
             }
             
             return $this->connection;
-        } 
+        }
         return $this->connection;
     }
 
+    /**
+     * Inserts a ShortURL into the database.
+     *
+     * @param \ShortURL $url
+     *            the ShortURL that needs be stored inside the database.
+     * @return \\ShortURL which is updated by this method.
+     */
     public function insertShortURL(\ShortURL $url)
     {
         $con = $this->getConnection();
@@ -82,14 +96,22 @@ class DBManager
         }
     }
 
+    /**
+     * Returns a single value like an ID.
+     *
+     *
+     * @param string $query
+     *            the database query.
+     * @return string|NULL if the query produced no result this method return null otherwise it returs the value
+     */
     public function getSingleValue($query)
     {
         $con = $this->getConnection();
         if (isset($con)) {
             try {
-            $stmt = $con->prepare($query);
-            $stmt->execute();
-            $result = $stmt->fetchColumn();
+                $stmt = $con->prepare($query);
+                $stmt->execute();
+                $result = $stmt->fetchColumn();
             } catch (\PDOException $e) {
                 var_dump($e);
             }
@@ -141,9 +163,12 @@ class DBManager
     }
 
     /**
+     * This method returns all objects produced by given query of type $classname.
      *
-     * @param unknown $query            
-     * @param unknown $className            
+     * @param string $query
+     *            the sql statement
+     * @param string $className
+     *            name of the type that we expect
      * @return multitype:|boolean
      */
     public function fetchAllShortURLs($query, $className)

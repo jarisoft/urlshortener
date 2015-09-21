@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * This class is a simple container and holds all information that maps a 
+ * shortURL to a target. 
+ * 
+ * In this appliaction shortURLs have a life cycle and once they are out of 
+ * date they cannot be accessed any more.
+ * 
+ * 
+ * @author jakob
+ * @version 0.0.1
+ */
 class ShortURL
 {
 
@@ -15,19 +26,31 @@ class ShortURL
 
     private $host;
 
-    public function __construct($targetHost)
+    /**
+     * Constructor with optional url as parameter of the server that this application is
+     * on.
+     *
+     * @param string $targetHost            
+     */
+    public function __construct($targetHost = "")
     {
         $this->host = $targetHost;
     }
 
+    /**
+     * Checks if this ShortURL is expired
+     *
+     * @return boolean true if expired otherwise false;
+     */
     public function isExpired()
     {
         return (time() < $this->dateExpired);
     }
 
     /**
+     * Returns the Id of this ShortURL
      *
-     * @return the unknown_type
+     * @return int
      */
     public function getId()
     {
@@ -35,8 +58,9 @@ class ShortURL
     }
 
     /**
+     * Sets the Id of this ShortURL
      *
-     * @param unknown_type $id            
+     * @param int $id            
      */
     public function setId($id)
     {
@@ -45,8 +69,12 @@ class ShortURL
     }
 
     /**
+     * Returns the ShortURL that will be append to the running host.
      *
-     * @return the unknown_type
+     * Example: http://www.example.com/SQQS
+     * Here shortName is SQQS and http://www.example.com/ is the host name.
+     *
+     * @return string the shortName
      */
     public function getShortName()
     {
@@ -54,8 +82,9 @@ class ShortURL
     }
 
     /**
-     *
-     * @param unknown_type $shortName            
+     *  Sets the shorter URL tag 
+     *  @see getShortName()
+     * @param string $shortName            
      */
     public function setShortName($shortName)
     {
@@ -64,8 +93,11 @@ class ShortURL
     }
 
     /**
-     *
-     * @return the unknown_type
+     * Returns the targetURL for this ShortURL object. 
+     * 
+     * The targetURL is the URL that this ShortURL points to.
+     * 
+     * @return string the target url
      */
     public function getTarget()
     {
@@ -73,8 +105,9 @@ class ShortURL
     }
 
     /**
-     *
-     * @param unknown_type $target            
+     * Sets the target url for this ShortURL.
+     * 
+     * @param string $target            
      */
     public function setTarget($target)
     {
@@ -83,8 +116,9 @@ class ShortURL
     }
 
     /**
-     *
-     * @return the unknown_type
+     * Get unix timestamp of when this ShortURL was created.
+     * 
+     * @return unix timestamp
      */
     public function getDateCreated()
     {
@@ -92,8 +126,8 @@ class ShortURL
     }
 
     /**
-     *
-     * @param unknown_type $dateCreated            
+     * Set the unix timestamp for this ShortURL of when it was created.
+     * @param int $dateCreated            
      */
     public function setDateCreated($dateCreated)
     {
@@ -102,8 +136,9 @@ class ShortURL
     }
 
     /**
-     *
-     * @return the unknown_type
+     * Gets the expired date as unix timestamp.
+     * 
+     * @return the int as unix timestamp
      */
     public function getDateExpire()
     {
@@ -111,8 +146,8 @@ class ShortURL
     }
 
     /**
-     *
-     * @param unknown_type $dateExpire            
+     * Set the expired date for this ShortURL . 
+     * @param int $dateExpire as unix timestamp
      */
     public function setDateExpire($dateExpire)
     {
@@ -120,6 +155,10 @@ class ShortURL
         return $this;
     }
 
+    /**
+     * Returns the full url that will be produced by host + / + shortURL
+     * @return string 
+     */
     public function getFullShortUrl()
     {
         if (strlen($this->host) === 0) {
@@ -129,6 +168,9 @@ class ShortURL
         }
     }
 
+    /**
+     * Formats the expired date and returns it.
+     */
     public function getDateExpiredFormatted()
     {
         $date = new DateTime();
@@ -136,6 +178,9 @@ class ShortURL
         return $date->format('Y-m-d H:i:s');
     }
 
+    /**
+     * Formats the creation date and returns it. 
+     */
     public function getDateCreatedFormatted()
     {
         $date = new DateTime();
