@@ -1,6 +1,8 @@
 <?php
 namespace Jarisoft\Model;
 
+require_once 'src/Jarisoft/Resources/ShortURL.php';
+
 use Jarisoft\Resources\Event;
 
 /**
