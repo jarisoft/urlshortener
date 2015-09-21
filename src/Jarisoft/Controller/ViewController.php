@@ -3,7 +3,7 @@ namespace Jarisoft\Controller;
 
 /**
  * This class handles the views, provides them with information and renders the output.
- * 
+ *
  * @author jakob
  *        
  */

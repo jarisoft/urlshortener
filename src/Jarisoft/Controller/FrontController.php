@@ -144,7 +144,6 @@ class FrontController extends Controller implements EventListener
                                 $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
                             } else {
                                 $shortURL = $this->urlShortenator->generateShortURL($url);
-                                var_dump($shortURL);
                                 $data = $this->getPageInformation();
                                 $data["shortURL"] = $shortURL;
                                 $this->viewController->shortGeneratedAction($data, $this->eventList);
@@ -173,9 +172,7 @@ class FrontController extends Controller implements EventListener
                 
                 if (isset($_POST['submit_lookup'])) {
                     $url = \Validator::getValidatedURL($_POST['input_field']);
-                    // var_dump($this->config);
                     $pos = strpos($url, $this->config['shortener']['targetURL']);
-                    var_dump($pos);
                     // we probably have a targetURL as input and are looking for the shortURL
                     $data = $this->getPageInformation();
                     $data['lookup'] = $url;
@@ -227,7 +224,8 @@ class FrontController extends Controller implements EventListener
     private function getPageInformation()
     {
         $data = array(
-            "countActiveShortURLs" => $this->urlShortenator->countActiveShortURLs(), "server_address" => $this->config['shortener']['targetURL']
+            "countActiveShortURLs" => $this->urlShortenator->countActiveShortURLs(),
+            "server_address" => $this->config['shortener']['targetURL']
         );
         return $data;
     }

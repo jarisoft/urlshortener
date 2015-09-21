@@ -53,14 +53,17 @@
 			<p>
 				This service provides you with a shortening sevice for your own
 				domain. Please read the <a href="#notes">notes</a> before you are
-				using this service.
-
+				using this service. 
+			</p>
+			<p>If you are interested in the code of this project you can visit my <a class="btn btn-default" href="https://github.com/jarisoft/urlshortener">GitHub</a>
 			</p>
 			<p>
 				Currently this service redirects <?php echo $data['countActiveShortURLs']; ?> URLs. 
 			</p>
 		</div>
 	</div>
+	<div class="container-fluid">
+		
 	<?php
 
 if (! empty($events)) {

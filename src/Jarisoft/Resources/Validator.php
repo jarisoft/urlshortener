@@ -36,7 +36,7 @@ class Validator
      */
     public static function isValidParameter($parameterArray)
     {
-        var_dump($parameterArray);
+        
         $bool = (sizeof($parameterArray) <= 1);
         if (sizeof($parameterArray) === 1) {
             reset($parameterArray);

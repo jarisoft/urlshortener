@@ -115,7 +115,10 @@ class DBManager
                 $stmt->execute();
                 $result = $stmt->fetchColumn();
             } catch (\PDOException $e) {
-                var_dump($e);
+                $event = new Event(Event::ERROR);
+                $event->setEventMessage($e->getMessage());
+                $this->eventManager->notifyListener($event);
+
             }
             return $result;
         } else {

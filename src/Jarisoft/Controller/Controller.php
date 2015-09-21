@@ -76,7 +76,7 @@ class Controller
         curl_exec($ch);
         $returnCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        var_dump($returnCode);
+       
         if ($returnCode < 400) {
             return true;
         } else {

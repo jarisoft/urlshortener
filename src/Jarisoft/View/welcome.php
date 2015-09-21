@@ -5,7 +5,7 @@
 			<p>Enter the url you want to create a shorter URL from into the input
 				field and click 'create'</p>
 			<form role="form" class="" action="/" method="POST">
-				<label for="input_field">Enter URL</label><input type="text"
+				<label for="input_field">Enter URL</label><input required type="url"
 					name="input_field" class="form-control"
 					placeholder="Your URL goes in here"> <input type="hidden"
 					name="random_key" value="<?php echo $data['random_key'];?>"> <input
@@ -13,6 +13,7 @@
 					class="btn btn-primary"> <input type="submit" name="submit_lookup"
 					value="Lookup URL" class="btn btn-success">
 			</form>
+			<hr>
 		</div>
 	</div>
 
