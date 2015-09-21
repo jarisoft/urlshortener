@@ -3,6 +3,10 @@ namespace Jarisoft\Controller;
 
 require_once 'src/Jarisoft/Controller/Controller.php';
 require_once 'src/Jarisoft/Controller/ViewController.php';
+require_once 'src/Jarisoft/Resources/EventListener.php';
+require_once 'src/Jarisoft/Model/EventManager.php';
+require_once 'src/Jarisoft/Model/URLShortener.php';
+require_once 'src/Jarisoft/Model/DBManager.php';
 use Jarisoft\Resources\EventListener;
 use Jarisoft\Resources\Event;
 use Jarisoft\Model\EventManager;
@@ -22,7 +26,8 @@ class FrontController extends Controller implements EventListener
 {
 
     /**
-     * This array stores all incoming events 
+     * This array stores all incoming events
+     *
      * @var array
      */
     private $eventList = array();
@@ -38,8 +43,8 @@ class FrontController extends Controller implements EventListener
     private $config;
 
     /**
-     * Constructor of this class initialised several components of this appliaction 
-     * and set them up to control them.  
+     * Constructor of this class initialised several components of this appliaction
+     * and set them up to control them.
      */
     public function __construct()
     {
@@ -54,7 +59,7 @@ class FrontController extends Controller implements EventListener
     }
 
     /**
-     * This method checks for the method that was called and handles them accordingly 
+     * This method checks for the method that was called and handles them accordingly
      */
     private function initApplication()
     {
@@ -98,10 +103,10 @@ class FrontController extends Controller implements EventListener
                     }
                 }
             } else {
-                 $event = new Event(Event::WARNING);
-                        $event->setEventMessage("This URL couldn't be found please make sure you have not misspelled the address. Please try again.");
-                        $this->eventManager->notifyListener($event);
-                        $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
+                $event = new Event(Event::WARNING);
+                $event->setEventMessage("This URL couldn't be found please make sure you have not misspelled the address. Please try again.");
+                $this->eventManager->notifyListener($event);
+                $this->viewController->errorAction($this->getPageInformation(), $this->eventList);
             }
         } else {
             $this->handlePost();
@@ -109,7 +114,7 @@ class FrontController extends Controller implements EventListener
     }
 
     /**
-     * This method handles all form submissions. 
+     * This method handles all form submissions.
      */
     private function handlePost()
     {
@@ -216,13 +221,13 @@ class FrontController extends Controller implements EventListener
 
     /**
      * This method is called every time we want to issue the ViewController.
-     * 
+     *
      * @return array holds information for ViewController
      */
     private function getPageInformation()
     {
         $data = array(
-            "countActiveShortURLs" => $this->urlShortenator->countActiveShortURLs()
+            "countActiveShortURLs" => $this->urlShortenator->countActiveShortURLs(), "server_address" => $this->config['shortener']['targetURL']
         );
         return $data;
     }
@@ -233,7 +238,6 @@ class FrontController extends Controller implements EventListener
      */
     public function processEvent(Event $event)
     {
-        echo $event->getEventMessage();
         // just store all incoming events inside the event list in allocated array.
         $this->eventList[$event->getEventType()][] = $event;
     }
