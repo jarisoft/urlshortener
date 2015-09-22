@@ -1,5 +1,5 @@
 # urlshortener
-Implementation of a url shortening service . 
+Implementation of a url shortening service. 
 
 This project was build using MVC pattern and uses some other design patterns such observer pattern. 
 
@@ -13,3 +13,10 @@ The front-end is very simple. It uses bootstrap and jquery. The focus was more o
 
 Currently the service is hosted under http://local.jarisoft.eu/ for demonstration purposes 
 but will be removed from there within the next few days.
+
+# Please note
+This application is expecting to find a configuration-file called "config.php" in 
+"/src/config/". Currently there is a config.txt included that must be renamed config.php and edited according 
+to your own needs.
+
+ 
